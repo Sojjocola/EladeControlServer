@@ -3,6 +3,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 import ConfigParser
+import EladeVehicle
 
 
 uavVehicle = None
@@ -20,9 +21,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def open(self, *args, **kwargs):
         print("Connection Opened")
-        config = ConfigParser.ConfigParser()
-        config.read('uav_vehicle_config.cfg')
-        print(config.get("test", "test1"))
+        uavVehicle = EladeVehicle('/dev/cu.usbmodem1',115200,'MAV001')
 
     def on_close(self):
         print("Connection closed")
