@@ -1,8 +1,9 @@
-__author__ = 'francoischevalier'
 from dronekit import connect
 from dronekit.lib import VehicleMode
 from pymavlink import mavutil
 import time
+__author__ = 'francoischevalier'
+
 
 class EladeVehicle(object):
     vehicle = None
@@ -14,11 +15,21 @@ class EladeVehicle(object):
         self.master = master
         self.baudrate = baudrate
         self.aircraft = aircraft
+        self.observers = []
 
-    def connectUav(self):
+    def register(self, observer):
+        if not observer in self.observers:
+            self.observers.append(observer)
+
+    def notify_observer(self, *args, **kwargs):
+        for observer in self.observers:
+            observer.update(*args, **kwargs)
+
+    def connect_uav(self):
         self.vehicle = connect(self.master)
+        self.notify_observer('connection', 'uav mavlink connected')
 
-    def prearmLaunch(self):
+    def prearm_launch(self):
         """
         Test code on real uav
         """
