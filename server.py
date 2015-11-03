@@ -41,7 +41,7 @@ application = tornado.web.Application([
 
 
 if __name__ == '__main__':
-    uavVehicle = elade_vehicle.EladeVehicle('/dev/cu.usbmodem1', 115200, 'MAV001')
+    uavVehicle = elade_vehicle.EladeVehicle()
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
 
