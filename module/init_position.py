@@ -1,5 +1,6 @@
 __author__ = 'fchevalier12'
 
+
 class InitPosition(object):
     lat = 0
     long = 0

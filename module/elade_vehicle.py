@@ -5,6 +5,8 @@ import json
 import time
 import ConfigParser
 
+from module.init_position import InitPosition
+
 __author__ = 'francoischevalier'
 
 
@@ -14,6 +16,7 @@ class EladeVehicle(object):
     baudrate = 57600
     aircraft = ''
     connection_status = 0
+    init_position_save_status = 0
     prearm_status = 0
     takeoff_status = 0
     posinit_status = 0
@@ -51,9 +54,7 @@ class EladeVehicle(object):
         elif commandSplited[0] == "prearm":
             self.prearm_launch()
         elif commandSplited[0] == "takeoff":
-            self.arming_and_takeoff(self.init_position.alt)
-        elif commandSplited[0] == "reachinit":
-            self.reach_init_position(self.init_position)
+            self.init_process()
         elif commandSplited[0] == "newposition":
             self.followme_instruction(commandSplited[1])
         elif commandSplited[0] == "land":
@@ -95,6 +96,11 @@ class EladeVehicle(object):
 
         self.notify_observer('prearm', self.prearm_status)
         print "prearm done with status: ", self.prearm_status
+
+    def init_process(self):
+        self.arming_and_takeoff(self.init_position.alt)
+        time.sleep(5)
+        self.reach_init_position(self.init_position)
 
     def arming_and_takeoff(self, atargetaltitude):
         try:
@@ -155,4 +161,12 @@ class EladeVehicle(object):
         print "Not implemented"
 
     def save_posinit(self, posinit):
-        print "Not implemented"
+        try:
+            pos_init_list = posinit.split(':')
+            self.init_position = InitPosition(pos_init_list[0], pos_init_list[1], pos_init_list[2])
+            self.init_position_save_status = 1
+        except:
+            self.init_position_save_status = 0
+
+        self.notify_observer('initpossave', self.init_position_save_status)
+        print "initial position saved with status: ", self.init_position_save_status
