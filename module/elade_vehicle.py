@@ -19,6 +19,7 @@ class EladeVehicle(object):
     posinit_status = 0
     followme_status = 0
     land_status = 0
+    init_position = None
 
     def __init__(self, master, baudrate, aircraft):
         self.master = master
@@ -44,6 +45,19 @@ class EladeVehicle(object):
 
     def handle_incomming_message(self, message):
         print "incoming message"
+        commandSplited = message.split('/')
+        if commandSplited[0] == "posinit":
+            self.save_posinit(commandSplited[1])
+        elif commandSplited[0] == "prearm":
+            self.prearm_launch()
+        elif commandSplited[0] == "takeoff":
+            self.arming_and_takeoff(self.init_position.alt)
+        elif commandSplited[0] == "reachinit":
+            self.reach_init_position(self.init_position)
+        elif commandSplited[0] == "newposition":
+            self.followme_instruction(commandSplited[1])
+        elif commandSplited[0] == "land":
+            self.land_and_disarm()
 
     def connect_uav(self):
         try:
@@ -116,6 +130,9 @@ class EladeVehicle(object):
         self.notify_observer('takeoff', self.takeoff_status)
         print "takeoff done with status: ", self.takeoff_status
 
+    def land_and_disarm(self):
+        print "Not implemented"
+
     def reach_init_position(self, gpsfix):
         try:
             if self.takeoff_status == 1:
@@ -134,6 +151,8 @@ class EladeVehicle(object):
         self.notify_observer('posinit', self.posinit_status)
         print "initial position reached with status: ", self.posinit_status
 
-
     def followme_instruction(self, north, east, down):
+        print "Not implemented"
+
+    def save_posinit(self, posinit):
         print "Not implemented"

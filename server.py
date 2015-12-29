@@ -27,7 +27,8 @@ class WSHandler(tornado.websocket.WebSocketHandler, elade_vehicle_observer.Elade
         print("Connection closed")
 
     def on_message(self, message):
-        print(message)
+        if uavVehicle is not None:
+            uavVehicle.handle_incomming_message(message)
 
     def update(self, *args, **kwargs):
         print('update triggered')
