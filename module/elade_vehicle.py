@@ -1,7 +1,4 @@
 from dronekit import connect, LocationGlobalRelative
-from dronekit.lib import VehicleMode
-from pymavlink import mavutil
-import json
 import time
 import ConfigParser
 
@@ -62,7 +59,7 @@ class EladeVehicle(object):
 
     def connect_uav(self):
         try:
-            self.vehicle = connect(self.master)
+            self.vehicle = connect('/dev/ttyAMA0',wait_ready=True,baud=57600)
             self.connection_status = 1
         except:
             self.connection_status = 0
@@ -88,7 +85,7 @@ class EladeVehicle(object):
                     print "Waiting for GPS...:", self.vehicle.gps_0.fix_type
                     time.sleep(1)
 
-                self.vehicle.mode = VehicleMode("GUIDED")
+                # self.vehicle.mode = VehicleMode("GUIDED")
                 self.prearm_status = 1
 
         except:
@@ -163,7 +160,7 @@ class EladeVehicle(object):
     def save_posinit(self, posinit):
         try:
             pos_init_list = posinit.split(':')
-            self.init_position = InitPosition(pos_init_list[0], pos_init_list[1], pos_init_list[2])
+            self.init_position = InitPosition(pos_init_list[0], pos_init_list[1], pos_init_list[2], pos_init_list[3])
             self.init_position_save_status = 1
         except:
             self.init_position_save_status = 0

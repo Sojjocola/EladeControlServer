@@ -32,7 +32,7 @@ class WSHandler(tornado.websocket.WebSocketHandler, elade_vehicle_observer.Elade
 
     def update(self, *args, **kwargs):
         print('update triggered')
-        self.write_message("{0}/{1}".format(args, kwargs))
+        self.write_message("{0}/{1}".format(args[0],args[1]))
 
 
 application = tornado.web.Application([
