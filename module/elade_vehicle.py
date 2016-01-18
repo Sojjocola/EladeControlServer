@@ -65,8 +65,7 @@ class EladeVehicle(object):
         elif commandSplited[0] == "takeoff":
             self.init_process()
         elif commandSplited[0] == "newposition":
-            ned_data = commandSplited[1].split(':')
-            self.followme_instruction(ned_data[0], ned_data[1], ned_data[2])
+            self.handle_followme_instruction(commandSplited[1])
         elif commandSplited[0] == "land":
             self.land_and_disarm()
 
@@ -177,11 +176,11 @@ class EladeVehicle(object):
         try:
             if self.takeoff_status == 1 and self.vehicle.mode == "GUIDED":
                 print "Go to initial position"
-                print "Set default/target airspeed to 3"
-                self.vehicle.airspeed = 3
+                print "Set default/target airspeed to 2"
+                self.vehicle.airspeed = 2
 
                 print "Going towards initial point for 15 seconds ..."
-                initpos = LocationGlobalRelative(gpsfix.lat, gpsfix.lon)
+                initpos = LocationGlobalRelative(gpsfix.latitude, gpsfix.longitude)
                 self.vehicle.simple_goto(initpos)
                 time.sleep(15)
                 self.condition_yaw(gpsfix.heading)
@@ -192,14 +191,24 @@ class EladeVehicle(object):
         self.notify_observer('posinit', self.posinit_status)
         print "initial position reached with status: ", self.posinit_status
 
-    def followme_instruction(self, north, east, down):
+    def handle_followme_instruction(self, instruction):
         if self.is_guided_mode == 1:
-            self.send_ned_velocity(north, east, down, 2)
+            instruction_splitted = instruction.split(':')
+            if instruction_splitted[0] == 'bigchange':
+                source_lat = instruction_splitted[1]
+                source_long = instruction_splitted[2]
+                source_direction = instruction_splitted[3]
+                self.catchup_position(source_lat, source_long, source_direction,
+                                      self.init_position.follower_orientation)
+            else:
+                source_direction = instruction_splitted[1]
+                source_speed = instruction_splitted[2]
 
     def save_posinit(self, posinit):
         try:
             pos_init_list = posinit.split(':')
-            self.init_position = InitPosition(pos_init_list[0], pos_init_list[1], pos_init_list[2], pos_init_list[3])
+            self.init_position = InitPosition(pos_init_list[0], pos_init_list[1], pos_init_list[2], pos_init_list[3],
+                                              pos_init_list[4])
             self.init_position_save_status = 1
         except:
             self.init_position_save_status = 0
@@ -225,11 +234,11 @@ class EladeVehicle(object):
         # send command to vehicle
         self.vehicle.send_mavlink(msg)
 
-    def send_ned_velocity(self, velocity_x, velocity_y, velocity_z, duration):
+    def send_ned_velocity_relative_to_heading(self, velocity_x, velocity_y, velocity_z, duration):
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
                 0,  # time_boot_ms (not used)
                 0, 0,  # target system, target component
-                mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
+                mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,  # frame
                 0b0000111111000111,  # type_mask (only speeds enabled)
                 0, 0, 0,  # x, y, z positions (not used)
                 velocity_x, velocity_y, velocity_z,  # x, y, z velocity in m/s
@@ -238,6 +247,8 @@ class EladeVehicle(object):
 
         # send command to vehicle on 1 Hz cycle
         for x in range(0, duration):
-            if self.is_guided_mode == 1:
-                self.vehicle.send_mavlink(msg)
+            self.vehicle.send_mavlink(msg)
             time.sleep(1)
+
+    def catchup_position(self, latitude, longitude, direction, follower_direction):
+        print "catchup position TODO"

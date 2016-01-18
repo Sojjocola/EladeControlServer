@@ -2,14 +2,15 @@ __author__ = 'fchevalier12'
 
 
 class InitPosition(object):
-    lat = 0
-    long = 0
+    latitude = 0
+    longitude = 0
     alt = 0
     heading = 0
+    follower_orientation = 0
 
-    def __init__(self, alt, heading, lat, long):
+    def __init__(self, alt, heading, latitude, longitude, follower_orientation):
         self.alt = alt
         self.heading = heading
-        self.lat = lat
-        self.long = long
-
+        self.latitude = latitude
+        self.longitude = longitude
+        self.follower_orientation = follower_orientation
